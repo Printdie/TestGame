@@ -9,6 +9,10 @@ public class TestGame : Game
     private GraphicsDeviceManager graphics;
     private SpriteBatch spriteBatch;
 
+    private Texture2D ballSprite;
+    private Vector2 ballPosition = new(200, 200);
+    private float ballSpeed = 100f;
+
     public TestGame()
     {
         graphics = new GraphicsDeviceManager(this);
@@ -18,24 +22,60 @@ public class TestGame : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
+        ballPosition = new(200, 200);
+        ballSpeed = 100f;
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        ballSprite = Content.Load<Texture2D>("ball");
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        var keyboardState = Keyboard.GetState();
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        if (keyboardState.IsKeyDown(Keys.Up))
+        {
+            ballPosition.Y -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        if (keyboardState.IsKeyDown(Keys.Down))
+        {
+            ballPosition.Y += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        if (keyboardState.IsKeyDown(Keys.Left))
+        {
+            ballPosition.X -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        if (keyboardState.IsKeyDown(Keys.Right))
+        {
+            ballPosition.X += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
+        if (ballPosition.X > graphics.PreferredBackBufferWidth - ballSprite.Width / 2)
+        {
+            ballPosition.X = graphics.PreferredBackBufferWidth - ballSprite.Width / 2;
+        }
+        else if (ballPosition.X < ballSprite.Width / 2)
+        {
+            ballPosition.X = ballSprite.Width / 2f;
+        }
+
+        if (ballPosition.Y > graphics.PreferredBackBufferHeight - ballSprite.Height / 2)
+        {
+            ballPosition.Y = graphics.PreferredBackBufferHeight - ballSprite.Height / 2;
+        }
+        else if (ballPosition.Y < ballSprite.Height / 2)
+        {
+            ballPosition.Y = ballSprite.Height / 2;
+        }
 
         base.Update(gameTime);
     }
@@ -44,7 +84,17 @@ public class TestGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        spriteBatch.Begin();
+        spriteBatch.Draw(ballSprite,
+            ballPosition,
+            null,
+            Color.White,
+            0f,
+            new Vector2(ballSprite.Width / 2f, ballSprite.Height / 2f),
+            Vector2.One,
+            SpriteEffects.None,
+            0f);
+        spriteBatch.End();
 
         base.Draw(gameTime);
     }
